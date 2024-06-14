@@ -1,0 +1,38 @@
+﻿@model ShopBusiness.Models.Category
+
+
+@{
+    ViewData["Title"] = "Tạo mới Danh mục Sản phẩm";
+}
+<h4>Tạo mới Danh mục Sản phẩm</h4>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="CategoryName" class="control-label"></label>
+                <input asp-for="CategoryName" class="form-control" />
+                <span asp-validation-for="CategoryName" class="text-danger"></span>
+            </div>
+            <div class="mb-3">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Status" /> @Html.DisplayNameFor(model => model.Status)
+                </label>
+            </div>
+            <div class="mb-3">
+                <a asp-action="Index" class="btn btn-primary">Trở về</a>
+                <input type="submit" value="Tạo mới" class="btn btn-danger" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
