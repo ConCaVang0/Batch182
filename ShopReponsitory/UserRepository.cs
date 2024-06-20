@@ -10,43 +10,34 @@ namespace ShopRepository
 {
     public class UserRepository : IUserRepository
     {
-        public void Add(User user)
+        public async Task Add(User user)
         {
-            UserDAO.Instance.Add(user);
+            await UserDAO.Instance.Add(user);
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            UserDAO.Instance.Delete(id);
+            await UserDAO.Instance.Delete(id);
         }
 
-        public IEnumerable<User> GetAllUser()
+        public async Task<IEnumerable<User>> GetAllUser()
         {
-            return UserDAO.Instance.GetUserAll();
+            return await UserDAO.Instance.GetUserAll();
         }
 
-        public User GetUserById(int id)
+        public async Task<User> GetUserById(int id)
         {
-            return UserDAO.Instance.GetUserById(id);
+            return await UserDAO.Instance.GetUserById(id);
         }
-        public void Update(User user)   
+        public async Task Update(User user)
         {
-            UserDAO.Instance.Update(user);
+            await UserDAO.Instance.Update(user);
         }
-        public bool ChangeStatus(int id)
+        public async Task<bool> ChangeStatus(int id)
         {
-
-
-            return UserDAO.Instance.ChangeStatus(id);
+            return await UserDAO.Instance.ChangeStatus(id);
         }
-
-        public User GetUserByUserNamePassword(string userName, string password) =>  
-            UserDAO.Instance.GetUserByUserNamePassword(userName, password);
-
-
-
+        public async Task<User> GetUserByUserNamePassword(string userName, string password) =>
+            await UserDAO.Instance.GetUserByUserNamePassword(userName, password);
     }
-
-
-
 }

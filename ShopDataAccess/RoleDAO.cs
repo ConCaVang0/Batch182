@@ -8,62 +8,52 @@ using System.Threading.Tasks;
 
 namespace ShopDataAccess
 {
-    public class RoleDAO : SingletonBase<RoleDAO> 
+    public class RoleDAO : SingletonBase<RoleDAO>
     {
-        // GET ALL
-        public IEnumerable<Role> GetRoleAll()
+        /// <summary>
+        /// GET ALL
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<Role>> GetRoleAll()
         {
-            return _context.Roles.AsNoTrackingWithIdentityResolution().ToList();
+            return await _context.Roles.ToListAsync();
         }
-        //+ GET BY ID
-        public Role GetRoleById(int id)
+
+        /// <summary>
+        /// GET BY ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<Role> GetRoleById(int id)
         {
-            var role = _context.Roles.AsNoTrackingWithIdentityResolution().FirstOrDefault(c => c.RoleId == id);
+            var role = await _context.Roles.FirstOrDefaultAsync(c => c.RoleId == id);
             if (role == null) return null;
 
             return role;
         }
-        //+ ADD
-        public void Add(Role role)
+        public async Task Add(Role role)
         {
             _context.Roles.Add(role);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
-        //+ UPDATE
-        public void Update(Role role)
+        public async Task Update(Role role)
         {
-            _context = new ShopBatch182Context();
-            var existingItem = GetRoleById(role.RoleId);
+            var existingItem = await GetRoleById(role.RoleId);
             if (existingItem != null)
             {
                 // Cập nhật các thuộc tính cần thiết
                 _context.Entry(existingItem).CurrentValues.SetValues(role);
+                await _context.SaveChangesAsync();
             }
-            else
-            {
-                // Thêm thực thể mới nếu nó chưa tồn tại
-                _context.Roles.Add(role);
-            }
-            _context.Roles.Update(role);
-            _context.SaveChanges();
         }
-        //+ DELETE
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var role = GetRoleById(id);
+            var role = await GetRoleById(id);
             if (role != null)
             {
                 _context.Roles.Remove(role);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
-        //+ Get List By Name
-        public IEnumerable<Role> GetRoleByName(string name)
-        {
-            return _context.Roles.Where(u => u.RoleName.Contains(name)).ToList();
-        }
-      
-      
-
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using ShopBusiness.Models;
+﻿using ShopBusiness.Models;
 using ShopDataAccess;
 using System;
 using System.Collections.Generic;
@@ -11,32 +10,32 @@ namespace ShopRepository
 {
     public class ProductRepository : IProductRepository
     {
-        public void Add(Product product)
+        public async Task Add(Product product)
         {
-            ProductDAO.Instance.Add(product);
+            await ProductDAO.Instance.Add(product);
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            ProductDAO.Instance.Delete(id);
+            await ProductDAO.Instance.Delete(id);
         }
 
-        public IEnumerable<Product> GetAllProduct()
+        public async Task<IEnumerable<Product>> GetAllProduct()
         {
-            return ProductDAO.Instance.GetProductAll();
+            return await ProductDAO.Instance.GetProductAll();
         }
 
-        public Product GetProductById(int id)
+        public async Task<Product> GetProductById(int id)
         {
-            return ProductDAO.Instance.GetProductById(id);
+            return await ProductDAO.Instance.GetProductById(id);
         }
-        public void Update(Product product)
+        public async Task Update(Product category)
         {
-            ProductDAO.Instance.Update(product);
+            await ProductDAO.Instance.Update(category);
         }
-        public bool ChangeStatus(int id)
+        public async Task<bool> ChangeStatus(int id)
         {
-            return ProductDAO.Instance.ChangeStatus(id);
+            return await ProductDAO.Instance.ChangeStatus(id);
         }
     }
 }

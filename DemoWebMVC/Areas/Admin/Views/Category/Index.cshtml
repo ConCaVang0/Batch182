@@ -1,7 +1,9 @@
 ﻿@model IEnumerable<ShopBusiness.Models.Category>
-
+@using X.PagedList;
+@using X.PagedList.Mvc.Core;
+@using X.PagedList.Web.Common;
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Danh mục Sản phẩm";
 }
 <h4 class="mb-4"><span>Danh mục Sản phẩm</span></h4>
 <div class="row">
@@ -33,6 +35,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th>#</th>
                     <th>
                         @Html.DisplayNameFor(model => model.CategoryName)
                     </th>
@@ -43,9 +46,18 @@
                 </tr>
             </thead>
             <tbody>
+                @{
+                    int dem = 1;
+                    int page = Convert.ToInt32(Context.Request.Query["page"]);
+                    if (page > 1)
+                    {
+                        dem = (page - 1) * ViewBag.Page + 1;
+                    }
+                }
                 @foreach (var item in Model)
                 {
                     <tr>
+                        <td class="text-center">@dem</td>
                         <td>
                             @Html.DisplayFor(modelItem => item.CategoryName)
                         </td>
@@ -57,10 +69,20 @@
                             <a href="#" title="Xoá" class="delete-link btn btn-danger" data-id="@item.CategoryId" data-confirm="Bạn có thật sự muốn xoá?" data-toggle="modal" data-target="#confirmModal"><i class="fa fa-times"></i> Xoá</a>
                         </td>
                     </tr>
+                    dem = dem + 1;
                 }
             </tbody>
         </table>
-
+        <div class="row mb-3">
+            @Html.PagedListPager((IPagedList)Model, page => Url.Action("Index", "Category", new { ViewBag.SearchName, page, SearchString = @Context.Request.Query["SearchString"] }),
+                     PagedListRenderOptions.EnableUnobtrusiveAjaxReplacing(new AjaxOptions()
+            {
+                HttpMethod = "POST",
+                UpdateTargetId = "targetElement",
+                OnSuccess = "onAjaxSuccess",
+                OnFailure = "onAjaxFailure"
+            }))
+        </div>
     </div>
 </div>
 

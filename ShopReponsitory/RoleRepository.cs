@@ -11,29 +11,28 @@ namespace ShopReponsitory
 {
     public class RoleRepository : IRoleRepository
     {
-        public void Add(Role role)
+        public async Task Add(Role role)
         {
-            RoleDAO.Instance.Add(role);
+            await RoleDAO.Instance.Add(role);
         }
 
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            RoleDAO.Instance.Delete(id);
+            await RoleDAO.Instance.Delete(id);
         }
 
-        public IEnumerable<Role> GetAllRole()
+        public async Task<IEnumerable<Role>> GetAllRole()
         {
-            return RoleDAO.Instance.GetRoleAll();
+            return await RoleDAO.Instance.GetRoleAll();
         }
 
-        public Role GetRoleById(int id)
+        public async Task<Role> GetRoleById(int id)
         {
-            return RoleDAO.Instance.GetRoleById(id);
+            return await RoleDAO.Instance.GetRoleById(id);
         }
-        public void Update(Role role)
+        public async Task Update(Role role)
         {
-            RoleDAO.Instance.Update(role);
+            await RoleDAO.Instance.Update(role);
         }
-     
     }
 }

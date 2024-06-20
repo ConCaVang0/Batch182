@@ -8,76 +8,67 @@ using System.Threading.Tasks;
 
 namespace ShopDataAccess
 {
-    public class UserDAO : SingletonBase<UserDAO> 
+    public class UserDAO : SingletonBase<UserDAO>
     {
-        // GET ALL
-        public IEnumerable<User> GetUserAll()
+        /// <summary>
+        /// GET ALL
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IEnumerable<User>> GetUserAll()
         {
-            return _context.Users.AsNoTrackingWithIdentityResolution().ToList();
+            return await _context.Users.Include(r => r.Role).ToListAsync();
         }
-        //+ GET BY ID
-        public User GetUserById(int id)
+
+        /// <summary>
+        /// GET BY ID
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        public async Task<User> GetUserById(int id)
         {
-            var user = _context.Users.AsNoTrackingWithIdentityResolution().FirstOrDefault(c => c.UserId == id);
+            var user = await _context.Users.FirstOrDefaultAsync(c => c.UserId == id);
             if (user == null) return null;
 
             return user;
         }
-        //+ ADD
-        public void Add(User user)
+        public async Task Add(User user)
         {
             _context.Users.Add(user);
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
-        //+ UPDATE
-        public void Update(User user)
+        public async Task Update(User user)
         {
-            _context = new ShopBatch182Context();
-            var existingItem = GetUserById(user.UserId);
+            var existingItem = await GetUserById(user.UserId);
             if (existingItem != null)
             {
                 // Cập nhật các thuộc tính cần thiết
                 _context.Entry(existingItem).CurrentValues.SetValues(user);
+                await _context.SaveChangesAsync();
             }
-            else
-            {
-                // Thêm thực thể mới nếu nó chưa tồn tại
-                _context.Users.Add(user);
-            }
-            _context.Users.Update(user);
-            _context.SaveChanges();
         }
-        //+ DELETE
-        public void Delete(int id)
+        public async Task Delete(int id)
         {
-            var user = GetUserById(id);
+            var user = await GetUserById(id);
             if (user != null)
             {
                 _context.Users.Remove(user);
-                _context.SaveChanges();
+                await _context.SaveChangesAsync();
             }
         }
-        //+ Get List By Name
-        public IEnumerable<User> GetUserByName(string name)
+
+        public async Task<bool> ChangeStatus(int id)
         {
-            return _context.Users.Where(u => u.UserName.Contains(name)).ToList();
-        }
-        //+ Change Status
-        public bool ChangeStatus(int id)
-        {
-            var user = GetUserById(id);
+            var user = await GetUserById(id);
             user.Status = !user.Status;
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
             return user.Status;
         }
 
-        public User GetUserByUserNamePassword(string userName , string password)
+        public async Task<User> GetUserByUserNamePassword(string userName, string password)
         {
-            var user = _context.Users.FirstOrDefault(c => c.UserName.Equals(userName) && c.Password.Equals(password));
+            var user = await _context.Users.FirstOrDefaultAsync(c => c.UserName.Equals(userName) && c.Password.Equals(password));
             if (user == null) return null;
-
             return user;
         }
-
     }
 }

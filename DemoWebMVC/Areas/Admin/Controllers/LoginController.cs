@@ -9,36 +9,36 @@ namespace DemoWebMVC.Areas.Admin.Controllers
     public class LoginController : Controller
     {
         public IUserRepository userRepository = null;
-        public LoginController() {
+        public LoginController()
+        {
             userRepository = new UserRepository();
         }
-
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            ViewBag.Message = "Hello";
-            return View();  
+            return View();
         }
+
         [HttpPost]
-        public IActionResult Index(UserLogin userLogin)
+        public async Task<IActionResult> Index(UserLogin userLogin)
         {
             if (ModelState.IsValid)
             {
                 var userName = userLogin.UserName;
                 var password = ShopCommon.Library.EncryptMD5(userLogin.Password);
-                var user = userRepository.GetUserByUserNamePassword(userName , password);       
+                var user = await userRepository.GetUserByUserNamePassword(userName, password);
                 if (user != null)
                 {
-                   /* TempData["Message"] = "Login thành công";
-                    TempData["AlertType"] = "success"; */
-                    return RedirectToAction("Index","Home");
+                    return RedirectToAction("Index", "Home");
                 }
                 else
                 {
-                    TempData["Message"] = " Login không thành công. Lỗi UserName hoặc Password ";
+                    TempData["Message"] = "Login không thành công. Kiểm tra lại thông tin của Username hoặc Password";
                     TempData["AlertType"] = "danger";
                 }
             }
             return View(nameof(Index));
         }
+
+
     }
 }

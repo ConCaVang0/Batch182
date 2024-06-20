@@ -14,7 +14,7 @@ namespace ShopRepository
         Task<Category> GetCategoryById(int id);
         Task Add(Category category);
         Task Update(Category category);
-        Task Delete(int id);
+        Task Delete(int id);    
         Task<bool> ChangeStatus(int id);
     }
 

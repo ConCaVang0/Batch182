@@ -1,103 +1,106 @@
-﻿using System;
+﻿    using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using ShopBusiness.Models;
+using ShopReponsitory;
 using ShopRepository;
 using X.PagedList;
+
 
 namespace DemoWebMVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    public class CategoryController : BaseController
+    public class RolesController : BaseController
     {
-        ICategoryRepository _categoryRepository;
-        public CategoryController()
-        {
-            _categoryRepository = new CategoryRepository();
+        IRoleRepository roleRepository;
+
+        public RolesController()
+        {   
+            roleRepository = new RoleRepository();
         }
 
-        // GET: Admin/Category
+        // GET: Admin/Roles
         public async Task<IActionResult> Index(string searchString, int? page)
         {
-            var category = await _categoryRepository.GetAllCategory();
+            var role = await roleRepository.GetAllRole();
             if (!string.IsNullOrEmpty(searchString))
             {
-                category = category.Where(c => ShopCommon.Library.ConvertToUnSign(c.CategoryName.ToLower()).Contains(ShopCommon.Library.ConvertToUnSign(searchString.ToLower())));
+                role = role.Where(c => ShopCommon.Library.ConvertToUnSign(c.RoleName.ToLower()).Contains(ShopCommon.Library.ConvertToUnSign(searchString.ToLower())));
             }
             ViewBag.Page = 5;
-            return View(category.ToPagedList(page ?? 1, (int)ViewBag.Page));
+            return View(role.ToPagedList(page ?? 1, (int)ViewBag.Page));
         }
 
-        // GET: Admin/Category/Create
-        public IActionResult Create()
+
+        // GET: Admin/Roles/Create
+        public async Task<IActionResult> Create()
         {
             return View();
         }
 
-        // POST: Admin/Category/Create
+        // POST: Admin/Roles/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("CategoryId,CategoryName,Status")] Category category)
+        public async Task<IActionResult> Create([Bind("RoleId,RoleName")] Role role)
         {
             if (ModelState.IsValid)
             {
-                await _categoryRepository.Add(category);
+                await roleRepository.Add(role);
                 SetAlert(ShopCommon.Contants.UPDATE_SUCCESS, ShopCommon.Contants.SUCCESS);
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(role);
         }
 
-        // GET: Admin/Category/Edit/5
+        // GET: Admin/Roles/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            var category = await _categoryRepository.GetCategoryById(Convert.ToInt32(id));
-            if (category == null)
+            var role = await roleRepository.GetRoleById(Convert.ToInt32(id));
+            if (role == null)
             {
                 return NotFound();
             }
-            return View(category);
+            return View(role);
         }
 
-        // POST: Admin/Category/Edit/5
+        // POST: Admin/Roles/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("CategoryId,CategoryName,Status")] Category category)
+        public async Task<IActionResult> Edit(int id, [Bind("RoleId,RoleName")] Role role)
         {
-            if (id != category.CategoryId)
+            if (id != role.RoleId)
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
+                await roleRepository.Update(role);
                 SetAlert(ShopCommon.Contants.UPDATE_SUCCESS, ShopCommon.Contants.SUCCESS);
-                _categoryRepository.Update(category);
                 return RedirectToAction(nameof(Index));
             }
-            return View(category);
+            return View(role);
         }
 
         [HttpPost]
-        public JsonResult DeleteId(int id)
+        public async Task<JsonResult> DeleteId(int id)
         {
             try
             {
-                var category = _categoryRepository.GetCategoryById(id);
+                var category = await roleRepository.GetRoleById(id);
                 if (category == null)
                 {
                     return Json(new { success = false, message = "Không tìm thấy bản ghi" });
                 }
-                _categoryRepository.Delete(id);
+                await roleRepository.Delete(id);
                 SetAlert(ShopCommon.Contants.DELETE_SUCCESS, ShopCommon.Contants.SUCCESS);
                 return Json(new
                 {
@@ -108,16 +111,6 @@ namespace DemoWebMVC.Areas.Admin.Controllers
             {
                 return Json(new { success = false, message = ex.Message });
             }
-        }
-
-        [HttpPost]
-        public async Task<JsonResult> ChangeStatus(int id)
-        {
-            var result = await _categoryRepository.ChangeStatus(id);
-            return Json(new
-            {
-                status = result
-            });
         }
 
     }
