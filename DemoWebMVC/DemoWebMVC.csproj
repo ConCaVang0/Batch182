@@ -1,4 +1,4 @@
-
+﻿
 	
 	
 
@@ -36,6 +36,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="13.0.1" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="3.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.6">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -55,6 +57,7 @@
 
   <ItemGroup>
     <Folder Include="Areas\Admin\Data\" />
+    <Folder Include="wwwroot\Upload\images\" />
   </ItemGroup>
 
   <ItemGroup>
@@ -318,6 +321,13 @@
     <ProjectReference Include="..\ShopBusiness\ShopBusiness.csproj" />
     <ProjectReference Include="..\ShopCommon\ShopCommon.csproj" />
     <ProjectReference Include="..\ShopReponsitory\ShopRepository.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\Admin\controllers\ProductsController.js">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

@@ -16,7 +16,8 @@ namespace ShopDataAccess
         /// <returns></returns>
         public async Task<IEnumerable<Product>> GetProductAll()
         {
-            return await _context.Products.ToListAsync();
+            var products = _context.Products.Include(u => u.UserPostNavigation).Include(c => c.Category);
+            return await products.ToListAsync();
         }
 
         /// <summary>
@@ -38,9 +39,13 @@ namespace ShopDataAccess
         }
         public async Task Update(Product product)
         {
-            var existingItem = await GetProductById(product.CategoryId);
+            var existingItem = await GetProductById(product.ProductId);
             if (existingItem != null)
             {
+                if (product.ImageUrl == null)
+                {
+                    product.ImageUrl = existingItem.ImageUrl;
+                }
                 // Cập nhật các thuộc tính cần thiết
                 _context.Entry(existingItem).CurrentValues.SetValues(product);
                 await _context.SaveChangesAsync();

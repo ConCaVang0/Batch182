@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
@@ -10,20 +13,27 @@ using ShopBusiness.Models;
 using ShopRepository;
 using X.PagedList;
 
+
 namespace DemoWebMVC.Areas.Admin.Controllers
 {
     [Area("Admin")]
+    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = "Admin")]
     public class ProductsController : BaseController
     {
         private readonly IProductRepository productRepository;
         private readonly ICategoryRepository categoryRepository;
         private readonly IUserRepository userRepository;
+        private readonly IWebHostEnvironment webHostEnvironment;
+        private readonly IMapper mapper;
 
-        public ProductsController()
+        public ProductsController(IWebHostEnvironment webHostEnvironment, IMapper mapper)
         {
             productRepository = new ProductRepository();
             categoryRepository = new CategoryRepository();
             userRepository = new UserRepository();
+            mapper = mapper;
+            this.webHostEnvironment = webHostEnvironment;
         }
 
         // GET: Admin/Products
@@ -56,13 +66,15 @@ namespace DemoWebMVC.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ProductId,ProductName,Description,Ncontent,CategoryId,ImageUrl,Price,CreatePost,UserPost,Status")] Product product)
+        public async Task<IActionResult> Create([Bind("ProductId,ProductName,Description,Ncontent,CategoryId,ImageUrl, ImageFile, Price,CreatePost,UserPost,Status")] Product product)
         {
 
             ViewData["CategoryId"] = new SelectList(await categoryRepository.GetAllCategory(), "CategoryId", "CategoryName");
             ViewData["UserPost"] = new SelectList(await userRepository.GetAllUser(), "UserId", "FullName");
             if (ModelState.IsValid)
             {
+                string uniqueFileName = UploadedFile(product);
+                product.ImageUrl = uniqueFileName;
                 await productRepository.Add(product);
                 SetAlert(ShopCommon.Contants.UPDATE_SUCCESS, ShopCommon.Contants.SUCCESS);
                 return RedirectToAction(nameof(Index));
@@ -79,7 +91,7 @@ namespace DemoWebMVC.Areas.Admin.Controllers
             {
                 return NotFound();
             }
-            ViewData["CategoryId"] = new SelectList(await categoryRepository.GetAllCategory(), "RoleId", "RoleName", product.CategoryId);
+            ViewData["CategoryId"] = new SelectList(await categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", product.CategoryId);
             ViewData["UserPost"] = new SelectList(await userRepository.GetAllUser(), "UserId", "FullName", product.UserPost);
             return View(product);
         }
@@ -89,15 +101,25 @@ namespace DemoWebMVC.Areas.Admin.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,Description,Ncontent,CategoryId,ImageUrl,Price,CreatePost,UserPost,Status")] Product product)
+        public async Task<IActionResult> Edit(int id, [Bind("ProductId,ProductName,Description,Ncontent,CategoryId,ImageUrl, ImageFile, Price,CreatePost,UserPost,Status")] Product product)
         {
             if (ModelState.IsValid)
             {
+                if (product.ImageFile != null)
+                {
+                    string uniqueFileName = UploadedFile(product);
+                    product.ImageUrl = uniqueFileName;
+                }
+                /* else
+                 {
+                     var productFind = await productRepository.GetProductById(product.ProductId);
+                     product.ImageUrl = productFind.ImageUrl;
+                 }*/
                 await productRepository.Update(product);
                 SetAlert(ShopCommon.Contants.UPDATE_SUCCESS, ShopCommon.Contants.SUCCESS);
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["CategoryId"] = new SelectList(await categoryRepository.GetAllCategory(), "RoleId", "RoleName", product.CategoryId);
+            ViewData["CategoryId"] = new SelectList(await categoryRepository.GetAllCategory(), "CategoryId", "CategoryName", product.CategoryId);
             ViewData["UserPost"] = new SelectList(await userRepository.GetAllUser(), "UserId", "FullName", product.UserPost);
             return View(product);
         }
@@ -133,6 +155,24 @@ namespace DemoWebMVC.Areas.Admin.Controllers
             {
                 status = result
             });
+        }
+
+        public string UploadedFile(Product product)
+        {
+            //string uniqueFileName = UploadedFile(hh);
+            //Save image to wwwroot/image
+            string wwwRootPath = this.webHostEnvironment.WebRootPath;
+            var exe = product.ImageFile.FileName;
+            string fileName = Path.GetFileNameWithoutExtension(exe);
+            string extension = Path.GetExtension(product.ImageFile.FileName);
+            product.ImageUrl = fileName = fileName + DateTime.Now.ToString("yymmssfff") + extension;
+            string path = Path.Combine(wwwRootPath + "/Upload/Images/", fileName);
+            using (var fileStream = new FileStream(path, FileMode.Create))
+            {
+                product.ImageFile.CopyTo(fileStream);
+            }
+            ViewBag.Anh = product.ImageUrl;
+            return fileName;
         }
 
     }

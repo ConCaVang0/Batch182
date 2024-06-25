@@ -1,4 +1,5 @@
-﻿<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
+﻿@using System.Security.Claims
+<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme"
      id="layout-navbar">
     <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
         <a class="nav-item nav-link px-0 me-xl-4" href="javascript:void(0)">
@@ -23,7 +24,7 @@
             <!-- Place this tag where you want the button to render. -->
             <li class="nav-item lh-1 me-3">
                 <a class="github-button"
-                   href=""
+                   href="#"
                    data-icon="octicon-star"
                    data-size="large"
                    data-show-count="true"
@@ -43,13 +44,22 @@
                             <div class="d-flex">
                                 <div class="flex-shrink-0 me-3">
                                     <div class="avatar avatar-online">
-                                        <img src="~/Admin/  img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
+                                        <img src="~/Admin/img/avatars/1.png" alt class="w-px-40 h-auto rounded-circle" />
                                     </div>
                                 </div>
-                                <div class="flex-grow-1">
-                                    <span class="fw-medium d-block">John Doe</span>
-                                    <small class="text-muted">Admin</small>
-                                </div>
+                                @{
+                                    var fullNameClaim = ((ClaimsIdentity)User.Identity).FindFirst("FullName");
+                                    string fullName = fullNameClaim?.Value;
+                                    //var user = User as ClaimsPrincipal;
+                                    //var role = user?.FindFirstValue(ClaimTypes.Role);
+                                    if (!string.IsNullOrEmpty(fullName))
+                                    {
+                                        <div class="flex-grow-1">
+                                            <span class="fw-medium d-block">@fullName</span>
+                                            <small class="text-muted">@ViewData["Role"]</small>
+                                        </div>
+                                    }
+                                }
                             </div>
                         </a>
                     </li>
@@ -81,7 +91,7 @@
                         <div class="dropdown-divider"></div>
                     </li>
                     <li>
-                        <a class="dropdown-item" href="javascript:void(0);">
+                        <a class="dropdown-item" href="@Url.Action("Logout","Login")">
                             <i class="bx bx-power-off me-2"></i>
                             <span class="align-middle">Log Out</span>
                         </a>
